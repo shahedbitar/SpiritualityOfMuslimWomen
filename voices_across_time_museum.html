@@ -1,0 +1,2041 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voices Across Time | Virtual Museum</title>
+    <meta
+      name="description"
+      content="An immersive teaching museum on contemporary Muslim women."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #fbf7f0;
+        --ink: #1d1a17;
+        --muted: #6d635a;
+        --line: rgba(29, 26, 23, 0.12);
+        --gold: #9e7c45;
+        --card: rgba(251, 247, 240, 0.9);
+        --shadow: 0 20px 45px rgba(29, 26, 23, 0.08);
+        --radius: 24px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Inter", system-ui, sans-serif;
+        background:
+          radial-gradient(circle at top, rgba(255, 255, 255, 0.74), transparent 35%),
+          linear-gradient(180deg, #f8f4ec 0%, #f4ecdd 100%);
+        color: var(--ink);
+      }
+
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: "Cormorant Garamond", serif;
+        margin: 0;
+        line-height: 1;
+      }
+
+      p {
+        margin: 0;
+        line-height: 1.65;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .page-shell {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+
+      .card {
+        background: var(--card);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+      }
+
+      .eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        font-size: 0.73rem;
+        color: var(--gold);
+        font-weight: 700;
+      }
+
+      .hero {
+        padding: 34px;
+        margin-bottom: 22px;
+      }
+
+      .hero h1 {
+        font-size: clamp(3rem, 5vw, 5.3rem);
+        margin: 8px 0 12px;
+      }
+
+      .hero p {
+        max-width: 760px;
+        color: var(--muted);
+        font-size: 1.03rem;
+      }
+
+      .instruction-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 22px;
+      }
+
+      .instruction-chip,
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: white;
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+
+      .museum-wrap {
+        padding: 14px;
+        margin-bottom: 18px;
+      }
+
+      .museum-viewport {
+        position: relative;
+        overflow: hidden;
+        min-height: 780px;
+        border-radius: 22px;
+        background:
+          radial-gradient(circle at top, rgba(255, 255, 255, 0.12), transparent 28%),
+          linear-gradient(180deg, #181513 0%, #2a231e 100%);
+      }
+
+      #museumCanvas {
+        display: block;
+        width: 100%;
+        height: 780px;
+      }
+
+      .museum-overlay {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      .scene-badge,
+      .scene-entry,
+      .museum-hint,
+      .map-card {
+        box-shadow: 0 12px 28px rgba(29, 26, 23, 0.14);
+      }
+
+      .map-card {
+        position: absolute;
+        left: 18px;
+        top: 18px;
+        z-index: 20;
+        width: 182px;
+        padding: 10px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid var(--line);
+      }
+
+      .map-card strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+      }
+
+      #miniMap {
+        display: block;
+        width: 100%;
+        height: 132px;
+        border-radius: 12px;
+        background: #f3eadb;
+      }
+
+      .scene-badge {
+        position: absolute;
+        right: 18px;
+        top: 18px;
+        z-index: 20;
+        max-width: 270px;
+        padding: 12px 14px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid var(--line);
+      }
+
+      .scene-badge strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .scene-badge span {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .scene-entry {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        width: min(400px, calc(100% - 36px));
+        padding: 22px 20px;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.93);
+        border: 1px solid var(--line);
+        pointer-events: auto;
+      }
+
+      .scene-entry strong {
+        display: block;
+        font-size: 1.2rem;
+        margin-bottom: 6px;
+      }
+
+      .scene-entry span {
+        color: var(--muted);
+      }
+
+      .scene-entry button,
+      .timeline-card button {
+        margin-top: 16px;
+        border: none;
+        background: var(--ink);
+        color: white;
+        border-radius: 999px;
+        padding: 12px 18px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .crosshair {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 16px;
+        height: 16px;
+        transform: translate(-50%, -50%);
+        z-index: 18;
+        opacity: 0.85;
+      }
+
+      .crosshair::before,
+      .crosshair::after {
+        content: "";
+        position: absolute;
+        background: rgba(255, 255, 255, 0.92);
+        border-radius: 999px;
+      }
+
+      .crosshair::before {
+        left: 7px;
+        top: 0;
+        width: 2px;
+        height: 16px;
+      }
+
+      .crosshair::after {
+        left: 0;
+        top: 7px;
+        width: 16px;
+        height: 2px;
+      }
+
+      .museum-hint {
+        position: absolute;
+        left: 50%;
+        bottom: 18px;
+        transform: translateX(-50%);
+        z-index: 20;
+        padding: 12px 16px;
+        border-radius: 999px;
+        background: rgba(29, 26, 23, 0.92);
+        color: white;
+        font-size: 0.93rem;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      .info-panel {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 16px;
+        margin-top: 16px;
+      }
+
+      .current-card,
+      .themes-card,
+      .timeline-wrap {
+        padding: 22px;
+      }
+
+      .current-card h2,
+      .themes-card h3 {
+        margin: 8px 0 10px;
+      }
+
+      .current-card h2 {
+        font-size: 2.4rem;
+      }
+
+      .current-card p,
+      .themes-card p,
+      .timeline-card p,
+      .footer-note p {
+        color: var(--muted);
+      }
+
+      .themes-card h3 {
+        font-size: 2rem;
+      }
+
+      .chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .timeline-wrap {
+        margin-bottom: 18px;
+      }
+
+      .timeline-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        align-items: end;
+        margin-bottom: 18px;
+      }
+
+      .timeline-head h2 {
+        font-size: 2.5rem;
+        margin-top: 8px;
+      }
+
+      .timeline-head p {
+        max-width: 460px;
+        color: var(--muted);
+      }
+
+      .timeline-track {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(220px, 1fr));
+        gap: 14px;
+        overflow-x: auto;
+        padding-bottom: 6px;
+      }
+
+      .timeline-card {
+        min-width: 220px;
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 18px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .timeline-year {
+        font-size: 0.85rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--gold);
+        font-weight: 700;
+      }
+
+      .timeline-thumb {
+        width: 100%;
+        height: 160px;
+        border-radius: 18px;
+        object-fit: cover;
+        border: 1px solid var(--line);
+      }
+
+      .timeline-card h3 {
+        font-size: 1.85rem;
+      }
+
+      .timeline-meta {
+        font-size: 0.92rem;
+        color: var(--muted);
+      }
+
+      .timeline-card button {
+        margin-top: 4px;
+        width: fit-content;
+        padding: 10px 14px;
+      }
+
+      .footer-note {
+        padding: 18px 22px;
+      }
+
+      .modal {
+        width: min(1050px, calc(100% - 24px));
+        border: none;
+        border-radius: 28px;
+        padding: 0;
+        background: var(--paper);
+        color: var(--ink);
+        box-shadow: 0 30px 60px rgba(29, 26, 23, 0.25);
+      }
+
+      .modal::backdrop {
+        background: rgba(21, 19, 18, 0.55);
+        backdrop-filter: blur(6px);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-start;
+        padding: 24px 24px 0;
+      }
+
+      .icon-button {
+        border: none;
+        border-radius: 50%;
+        width: 42px;
+        height: 42px;
+        background: rgba(29, 26, 23, 0.08);
+        font-size: 1.6rem;
+        cursor: pointer;
+      }
+
+      .modal-body {
+        display: grid;
+        grid-template-columns: 0.9fr 1.1fr;
+        gap: 22px;
+        padding: 18px 24px 24px;
+      }
+
+      .modal-visuals {
+        display: grid;
+        gap: 14px;
+      }
+
+      .modal-symbols {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+
+      .visual-card.symbol {
+        min-height: 160px;
+      }
+
+      .visual-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 22px;
+        border: 1px solid var(--line);
+        min-height: 220px;
+        background: linear-gradient(135deg, rgba(95, 59, 47, 0.14), rgba(232, 221, 209, 0.68));
+      }
+
+      .visual-card::before {
+        content: attr(data-label);
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--gold);
+        z-index: 2;
+      }
+
+      .visual-card::after {
+        content: attr(data-value);
+        position: absolute;
+        left: 16px;
+        bottom: 16px;
+        right: 16px;
+        font-family: "Cormorant Garamond", serif;
+        font-size: 1.45rem;
+        color: var(--ink);
+        z-index: 2;
+      }
+
+      .visual-card.portrait {
+        background:
+          radial-gradient(circle at 50% 34%, rgba(255, 255, 255, 0.9), transparent 22%),
+          linear-gradient(135deg, rgba(95, 59, 47, 0.18), rgba(255, 255, 255, 0.8));
+      }
+
+      .visual-card.image-fill::after {
+        content: "";
+      }
+
+      .visual-card.image-fill img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .visual-card.image-fill.portrait::before {
+        color: white;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+      }
+
+      .visual-card.portrait.image-fill img {
+        object-position: top center;
+      }
+
+      .modal-copy {
+        display: grid;
+        gap: 16px;
+      }
+
+      .modal-block {
+        border-top: 1px solid var(--line);
+        padding-top: 14px;
+      }
+
+      .modal-block h3 {
+        font-size: 1.7rem;
+        margin-bottom: 8px;
+      }
+
+      .modal-block p {
+        color: var(--muted);
+      }
+
+      @media (max-width: 980px) {
+        .info-panel,
+        .modal-body,
+        .timeline-head {
+          grid-template-columns: 1fr;
+          display: grid;
+        }
+      }
+
+      @media (max-width: 760px) {
+        .page-shell {
+          padding: 16px;
+        }
+
+        .hero,
+        .museum-wrap,
+        .current-card,
+        .themes-card,
+        .timeline-wrap,
+        .footer-note {
+          padding: 18px;
+        }
+
+        .museum-viewport,
+        #museumCanvas {
+          min-height: 620px;
+          height: 620px;
+        }
+
+        .museum-hint {
+          left: 18px;
+          right: 18px;
+          transform: none;
+          border-radius: 18px;
+        }
+
+        .map-card {
+          width: 154px;
+          padding: 8px;
+        }
+
+        #miniMap {
+          height: 112px;
+        }
+
+        .scene-badge {
+          top: auto;
+          bottom: 70px;
+          right: 18px;
+          max-width: 220px;
+        }
+
+        .modal {
+          width: calc(100% - 10px);
+          border-radius: 22px;
+        }
+
+        .modal-header,
+        .modal-body {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-shell">
+      <section class="hero card">
+        <p class="eyebrow">Virtual Teaching Museum</p>
+        <h1>Voices Across Time</h1>
+        <p>
+          Explore selected Muslim women through an immersive museum space.
+          Each station introduces a life story, a major contribution, and a
+          symbolic object that connects the figure to wider themes in the course.
+        </p>
+        <div class="instruction-row">
+          <span class="instruction-chip">Move with WASD or arrow keys</span>
+          <span class="instruction-chip">Drag to look around</span>
+          <span class="instruction-chip">Press E to open an exhibit</span>
+        </div>
+      </section>
+
+      <section class="museum-wrap card">
+        <div
+          id="museumViewport"
+          class="museum-viewport"
+          tabindex="0"
+          aria-label="Interactive museum walkthrough"
+        >
+          <canvas id="museumCanvas"></canvas>
+
+          <div class="museum-overlay">
+            <div class="map-card">
+              <strong>Gallery map</strong>
+              <canvas id="miniMap" width="176" height="132"></canvas>
+            </div>
+
+            <div class="scene-badge">
+              <strong>Immersive gallery</strong>
+              <span>Walk through the room and approach a pedestal to learn more.</span>
+            </div>
+
+            <div id="sceneEntry" class="scene-entry">
+              <strong>Enter the museum</strong>
+              <span>Step inside the gallery and move from one exhibit to the next.</span>
+              <button id="enterScene">Begin</button>
+            </div>
+
+            <div class="crosshair" aria-hidden="true"></div>
+            <div id="museumHint" class="museum-hint">Drag to look around the gallery</div>
+          </div>
+        </div>
+
+        <div class="info-panel">
+          <article class="current-card card">
+            <p class="eyebrow">Current exhibit</p>
+            <h2 id="activeExhibitName">Central hall</h2>
+            <p id="activeExhibitText">
+              Move toward a pedestal to bring an exhibit into focus.
+            </p>
+          </article>
+
+          <article class="themes-card card">
+            <p class="eyebrow">Course themes</p>
+            <h3 id="zoneText">Public voice</h3>
+            <p>
+              These exhibits connect biography to wider questions of education,
+              religious authority, scholarship, activism, piety, and media.
+            </p>
+            <div id="activeThemes" class="chip-row">
+              <span class="chip">Education</span>
+              <span class="chip">Scholarship</span>
+              <span class="chip">Activism</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="timeline-wrap card">
+        <div class="timeline-head">
+          <div>
+            <p class="eyebrow">Timeline</p>
+            <h2>Women across time</h2>
+          </div>
+          <p>
+            Follow the exhibit chronologically and open any stop directly from the timeline.
+          </p>
+        </div>
+        <div id="timelineTrack" class="timeline-track"></div>
+      </section>
+
+      <section class="footer-note card">
+        <p>
+          The museum is designed to teach through movement, space, and visual association,
+          allowing each woman to be encountered as part of a larger historical and intellectual landscape.
+        </p>
+      </section>
+    </div>
+
+    <dialog id="exhibitModal" class="modal">
+      <div class="modal-header">
+        <div>
+          <p id="modalEyebrow" class="eyebrow">Exhibit Label</p>
+          <h2 id="modalName"></h2>
+        </div>
+        <button id="closeModal" class="icon-button" aria-label="Close exhibit">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-visuals">
+          <div id="modalPortrait" class="visual-card portrait"></div>
+          <div class="modal-symbols">
+            <div id="modalSymbol1" class="visual-card symbol image-fill"></div>
+            <div id="modalSymbol2" class="visual-card symbol image-fill"></div>
+          </div>
+        </div>
+        <div class="modal-copy">
+          <div class="modal-block">
+            <h3>Biographical Snapshot</h3>
+            <p id="modalBio"></p>
+          </div>
+          <div class="modal-block">
+            <h3>Major Contribution</h3>
+            <p id="modalContribution"></p>
+          </div>
+          <div class="modal-block">
+            <h3>Symbolic Object</h3>
+            <p id="modalObjectText"></p>
+          </div>
+          <div class="modal-block">
+            <h3>Course Themes</h3>
+            <div id="modalThemes" class="chip-row"></div>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script>
+      const exhibits = [
+        {
+          id: "aisha",
+          name: "Aisha Abd al-Rahman (Bint al-Shatiʾ)",
+          region: "Egypt",
+          period: "1913–1998",
+          sortYear: 1913,
+          role: "Scholar and writer",
+          short: "An Egyptian scholar and writer whose work gives the museum intellectual depth around women, authorship, and Qur’anic interpretation.",
+          bio: "Aisha Abd al-Rahman, known as Bint al-Shatiʾ, was a major Egyptian scholar and literary figure. She is especially important for showing that Muslim women shaped scholarly interpretation, authorship, and public intellectual life.",
+          contribution: "Her major contribution lies in scholarship: she wrote, interpreted, taught, and demonstrated that women could establish authority in fields long dominated by men.",
+          objectText: "A manuscript and pen work well here because this exhibit centers authorship, interpretation, and women’s scholarly authority in Islamic thought.",
+          portraitLabel: "Portrait",
+          portraitValue: "Aisha Abd al-Rahman",
+          portraitSrc: "Images/AishaAbdAlrahman.jpeg",
+          symbolSrc1: "smybolicItems/aisha.png",
+          symbolSrc2: "smybolicItems/aisha2.png",
+          objectLabel: "Symbolic Object",
+          objectValue: "Manuscript / Pen",
+          themes: ["Scholarship", "Authority", "Interpretation", "Public Voice"],
+          zone: "Knowledge and Authority",
+          x: -12.6,
+          z: -10.6
+        },
+        {
+          id: "munira",
+          name: "Munira al-Qubaisi",
+          region: "Syria",
+          period: "1933–2022",
+          sortYear: 1933,
+          role: "Religious teacher and founder",
+          short: "A Syrian religious teacher whose movement highlights women’s piety, pedagogy, and informal religious authority.",
+          bio: "Munira al-Qubaisi founded a major women’s religious movement in Syria centered on Islamic learning, ethical discipline, and women’s religious community. She helps the museum explore how women create authority through teaching, formation, and spiritual networks.",
+          contribution: "Her major contribution lies in shaping female religious education and spiritual mentorship on a large scale, especially through organized circles of teaching and disciplined piety.",
+          objectText: "Prayer beads and a teaching notebook fit this exhibit because her authority was built through piety, mentorship, and disciplined religious formation.",
+          portraitLabel: "Portrait",
+          portraitValue: "Munira al-Qubaisi",
+          portraitSrc: "Images/MuniraAlQubaisi.jpg",
+          symbolSrc1: "smybolicItems/munira.png",
+          symbolSrc2: "smybolicItems/munira2.png",
+          objectLabel: "Symbolic Object",
+          objectValue: "Prayer Beads / Teaching Notebook",
+          themes: ["Religious Authority", "Piety", "Education", "Community"],
+          zone: "Knowledge and Authority",
+          x: 0,
+          z: -11.4
+        },
+        {
+          id: "zainab",
+          name: "Zainab al-Ghazali",
+          region: "Egypt",
+          period: "1917–2005",
+          sortYear: 1917,
+          role: "Islamic activist and organizer",
+          short: "An Egyptian religious organizer whose life brings together piety, Islamic activism, women’s leadership, and state repression.",
+          bio: "Zainab al-Ghazali was a major Egyptian Islamic activist and organizer. Her life is especially useful for showing that Muslim women’s activism did not have to follow secular feminist models, and that women’s authority could also emerge through explicitly Islamic movements.",
+          contribution: "Her major contribution lies in building women’s Islamic organizing spaces and modeling a form of religious and political commitment that reached beyond private life into public struggle.",
+          objectText: "Her prison memoir and the image of prison bars capture both devotion and the political cost of religious activism under repression.",
+          portraitLabel: "Portrait",
+          portraitValue: "Zainab al-Ghazali",
+          portraitSrc: "Images/ZainabAlGhazali.webp",
+          symbolSrc1: "smybolicItems/Zainab.png",
+          symbolSrc2: "smybolicItems/Zainab2.png",
+          objectLabel: "Symbolic Object",
+          objectValue: "Prison Memoir / Qur’an",
+          themes: ["Religious Authority", "Activism", "Politics", "Piety"],
+          zone: "Knowledge and Authority",
+          x: 12.6,
+          z: -10.6
+        },
+        {
+          id: "malala",
+          name: "Malala Yousafzai",
+          region: "Pakistan",
+          period: "1997–present",
+          sortYear: 1997,
+          role: "Education activist",
+          short: "A globally recognized advocate for girls’ education whose life anchors conversations on schooling, violence, and Muslim women’s public voice.",
+          bio: "Malala Yousafzai is a Pakistani activist whose public defense of girls’ education made her one of the most recognized Muslim women in the world. In this museum, she represents the intersection of education, violence, international media, and youth activism.",
+          contribution: "Her major contribution is transforming education into a global conversation about dignity, access, and political resistance, especially for girls living under pressure or violence.",
+          objectText: "A schoolbook and pen fit this exhibit because Malala’s story makes education feel immediate, material, and bound up with risk, resistance, and hope.",
+          portraitLabel: "Portrait",
+          portraitValue: "Malala Yousafzai",
+          portraitSrc: "Images/Malala.jpeg",
+          symbolSrc1: "smybolicItems/Malala.png",
+          symbolSrc2: "smybolicItems/Malala2.png",
+          objectLabel: "Symbolic Object",
+          objectValue: "Schoolbook / Pen",
+          themes: ["Education", "Rights", "Activism", "Public Voice"],
+          zone: "Education and Rights",
+          x: -16.4,
+          z: -6.8
+        },
+        {
+          id: "sharifa",
+          name: "Sharifa al-Khateeb",
+          region: "United States",
+          period: "1946–2004",
+          sortYear: 1946,
+          role: "Educator and community advocate",
+          short: "An American Muslim educator and public advocate whose work grounds the museum in Muslim women’s leadership in North America.",
+          bio: "Sharifa al-Khateeb was an American Muslim educator, speaker, researcher, and community leader whose work connected Muslim women, family life, interfaith engagement, and domestic violence awareness in North America.",
+          contribution: "Her major contribution lies in institution-building: she helped create resources and support systems that made Muslim women’s leadership visible through care work, education, and community reform.",
+          objectText: "A hotline telephone and report binder fit this exhibit because Sharifa’s leadership centered on intervention, education, and practical community reform rather than abstract symbolism alone.",
+          portraitLabel: "Portrait",
+          portraitValue: "Sharifa al-Khateeb",
+          portraitSrc: "Images/SharifaAlKhateeb.jpeg",
+          symbolSrc1: "smybolicItems/sharifa.png",
+          symbolSrc2: "smybolicItems/sharifa2.png",
+          objectLabel: "Symbolic Object",
+          objectValue: "Hotline Telephone / Report Binder",
+          themes: ["Community Care", "Education", "Advocacy", "Public Voice"],
+          zone: "Community Reform and Care",
+          x: -16.4,
+          z: 6.8
+        },
+        {
+          id: "sinead",
+          name: "Sinéad O’Connor / Shuhadāʾ Sadaqat",
+          region: "Ireland",
+          period: "1966–2023",
+          sortYear: 1966,
+          role: "Singer and public convert",
+          short: "A figure best framed through conversion, spirituality, and the public representation of Muslim identity in modern media culture.",
+          bio: "Sinéad O’Connor, later Shuhadāʾ Sadaqat, enters the museum differently from the others. Her exhibit is strongest when framed around conversion, spiritual searching, and the way public Muslim identity is read, judged, and circulated through media.",
+          contribution: "Her contribution to this project is interpretive rather than institutional: she opens up questions about authenticity, visibility, and what it means to become publicly Muslim in a media-saturated setting.",
+          objectText: "The microphone and headscarf fit this exhibit because they reflect both public performance and the visibility of conversion in the media sphere.",
+          portraitLabel: "Portrait",
+          portraitValue: "Sinéad O’Connor",
+          portraitSrc: "Images/SineadOConnor.png",
+          symbolSrc1: "smybolicItems/sinead.png",
+          symbolSrc2: "smybolicItems/sinead2.png",
+          objectLabel: "Symbolic Object",
+          objectValue: "Headscarf / Microphone",
+          themes: ["Media", "Identity", "Spirituality", "Public Voice"],
+          zone: "Media and Public Identity",
+          x: 16.4,
+          z: 0
+        },
+        {
+          id: "tawakkol",
+          name: "Tawakkol Karman",
+          region: "Yemen",
+          period: "1979–present",
+          sortYear: 1979,
+          role: "Journalist and activist",
+          short: "A Yemeni journalist and activist whose exhibit centers Muslim women’s political participation and protest leadership.",
+          bio: "Tawakkol Karman is a Yemeni journalist and activist whose role in public protest made her one of the most recognizable women of the Arab Spring. She gives the museum a strong example of Muslim women as political actors rather than symbolic observers.",
+          contribution: "Her major contribution lies in linking journalism, protest, democracy, and women’s leadership in a public and unmistakably political way.",
+          objectText: "A protest sign and microphone work well here because her public presence depended on speech, risk, visibility, and political leadership.",
+          portraitLabel: "Portrait",
+          portraitValue: "Tawakkol Karman",
+          portraitSrc: "Images/TawakkolKarman.jpeg",
+          symbolSrc1: "smybolicItems/tawkol.png",
+          symbolSrc2: "smybolicItems/tawkol2.png",
+          objectLabel: "Symbolic Object",
+          objectValue: "Protest Sign / Microphone",
+          themes: ["Activism", "Politics", "Leadership", "Public Voice"],
+          zone: "Activism and Political Leadership",
+          x: 0,
+          z: 11.4
+        }
+      ];
+
+      const roomBounds = {
+        minX: -19.5,
+        maxX: 19.5,
+        minZ: -13,
+        maxZ: 13,
+        width: 39,
+        depth: 26
+      };
+
+      const decorObstacles = [
+        { x: 0, z: 0, r: 3.9 },
+        { x: -8.5, z: 0, r: 1.7 },
+        { x: 8.5, z: 0, r: 1.7 }
+      ];
+
+      const modal = document.getElementById("exhibitModal");
+      const closeModal = document.getElementById("closeModal");
+      const museumViewport = document.getElementById("museumViewport");
+      const museumCanvas = document.getElementById("museumCanvas");
+      const museumHint = document.getElementById("museumHint");
+      const activeExhibitName = document.getElementById("activeExhibitName");
+      const activeExhibitText = document.getElementById("activeExhibitText");
+      const zoneText = document.getElementById("zoneText");
+      const activeThemes = document.getElementById("activeThemes");
+      const enterScene = document.getElementById("enterScene");
+      const sceneEntry = document.getElementById("sceneEntry");
+      const timelineTrack = document.getElementById("timelineTrack");
+      const miniMap = document.getElementById("miniMap");
+      const miniMapCtx = miniMap.getContext("2d");
+
+      let nearestExhibit = null;
+      let scene;
+      let camera;
+      let renderer;
+      let raycaster;
+      let clock;
+      let textureLoader;
+      const portraitTextureCache = new Map();
+      let dragging = false;
+      let sceneStarted = false;
+      let mouseMovedSinceDown = false;
+      const dragState = { lastX: 0, lastY: 0 };
+      const playerState = {
+        x: 0,
+        y: 1.75,
+        z: 8.2,
+        yaw: Math.PI,
+        pitch: -0.12,
+        speed: 5.1
+      };
+      const keys = {};
+      const interactiveObjects = [];
+      const exhibitMeshes = new Map();
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function openModal(id) {
+        const item = exhibits.find((entry) => entry.id === id);
+        if (!item) return;
+
+        document.getElementById("modalEyebrow").textContent = `${item.region} • ${item.period}`;
+        document.getElementById("modalName").textContent = item.name;
+        document.getElementById("modalBio").textContent = item.bio;
+        document.getElementById("modalContribution").textContent = item.contribution;
+        document.getElementById("modalObjectText").textContent = item.objectText;
+
+        const portrait = document.getElementById("modalPortrait");
+        portrait.setAttribute("data-label", item.portraitLabel);
+        portrait.setAttribute("data-value", item.portraitValue || "");
+        if (item.portraitSrc) {
+          portrait.classList.add("image-fill");
+          portrait.innerHTML = `<img src="${item.portraitSrc}" alt="${item.name}">`;
+        } else {
+          portrait.classList.remove("image-fill");
+          portrait.innerHTML = "";
+        }
+
+        const sym1 = document.getElementById("modalSymbol1");
+        sym1.setAttribute("data-label", item.objectLabel);
+        sym1.setAttribute("data-value", "");
+        sym1.innerHTML = item.symbolSrc1 ? `<img src="${item.symbolSrc1}" alt="${item.objectValue}">` : "";
+
+        const sym2 = document.getElementById("modalSymbol2");
+        sym2.setAttribute("data-label", "");
+        sym2.setAttribute("data-value", item.objectValue);
+        sym2.innerHTML = item.symbolSrc2 ? `<img src="${item.symbolSrc2}" alt="${item.objectValue}">` : "";
+
+        const themeWrap = document.getElementById("modalThemes");
+        themeWrap.innerHTML = item.themes.map((theme) => `<span class="chip">${theme}</span>`).join("");
+
+        modal.showModal();
+      }
+
+      function createTextTexture({
+        width = 768,
+        height = 384,
+        title,
+        subtitle = "",
+        footer = "",
+        background = "#f7f0e6",
+        accent = "#9e7c45"
+      }) {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+
+        ctx.fillStyle = background;
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.fillStyle = accent;
+        ctx.fillRect(28, 28, width - 56, 10);
+
+        ctx.fillStyle = "#1d1a17";
+        ctx.font = "700 52px Cormorant Garamond";
+        ctx.fillText(title, 48, 140);
+
+        if (subtitle) {
+          ctx.fillStyle = "#6d635a";
+          ctx.font = "600 28px Inter";
+          ctx.fillText(subtitle, 48, 205);
+        }
+
+        if (footer) {
+          ctx.fillStyle = accent;
+          ctx.font = "700 22px Inter";
+          ctx.fillText(footer, 48, height - 44);
+        }
+
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.needsUpdate = true;
+        return texture;
+      }
+
+      function createLabelTexture(title, subtitle) {
+        return createTextTexture({ title, subtitle });
+      }
+
+      function createZonePlaque(text) {
+        const texture = createTextTexture({
+          width: 700,
+          height: 180,
+          title: text,
+          background: "rgba(247,240,230,0.96)"
+        });
+        return new THREE.Mesh(
+          new THREE.PlaneGeometry(6.1, 1.45),
+          new THREE.MeshStandardMaterial({ map: texture, transparent: true })
+        );
+      }
+
+      function createWallFrame(title, subtitle, x, y, z, rotY, width = 3.6, height = 2.15) {
+        const frame = new THREE.Group();
+        const outer = new THREE.Mesh(
+          new THREE.BoxGeometry(width + 0.28, height + 0.28, 0.12),
+          new THREE.MeshStandardMaterial({ color: 0x6b4f3d, roughness: 0.82 })
+        );
+        const panel = new THREE.Mesh(
+          new THREE.PlaneGeometry(width, height),
+          new THREE.MeshStandardMaterial({
+            map: createTextTexture({ title, subtitle, footer: "Gallery Theme" })
+          })
+        );
+        panel.position.z = 0.07;
+        frame.add(outer, panel);
+        frame.position.set(x, y, z);
+        frame.rotation.y = rotY;
+        scene.add(frame);
+      }
+
+      function addColumn(x, z) {
+        const group = new THREE.Group();
+        const baseMaterial = new THREE.MeshStandardMaterial({ color: 0xe5d4bf, roughness: 0.92 });
+        const trimMaterial = new THREE.MeshStandardMaterial({ color: 0xc6aa84, roughness: 0.82 });
+
+        const baseHeight = 0.36;
+        const shaftHeight = 7.3;
+        const capHeight = 0.62;
+
+        const base = new THREE.Mesh(new THREE.BoxGeometry(1.05, baseHeight, 1.05), baseMaterial);
+        base.position.y = baseHeight / 2;
+
+        const shaft = new THREE.Mesh(new THREE.BoxGeometry(0.62, shaftHeight, 0.62), baseMaterial);
+        shaft.position.y = baseHeight + shaftHeight / 2;
+
+        const cap = new THREE.Mesh(new THREE.BoxGeometry(0.95, capHeight, 0.95), trimMaterial);
+        cap.position.y = baseHeight + shaftHeight + capHeight / 2;
+
+        group.add(base, shaft, cap);
+        group.position.set(x, 0, z);
+        scene.add(group);
+      }
+
+      function addBench(x, z, rotY = 0) {
+        const bench = new THREE.Group();
+        const wood = new THREE.MeshStandardMaterial({ color: 0x6d4b3a, roughness: 0.9 });
+        const seat = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.22, 0.8), wood);
+        seat.position.y = 0.65;
+        const leg1 = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.65, 0.18), wood);
+        const leg2 = leg1.clone();
+        const leg3 = leg1.clone();
+        const leg4 = leg1.clone();
+        leg1.position.set(-0.95, 0.32, -0.25);
+        leg2.position.set(0.95, 0.32, -0.25);
+        leg3.position.set(-0.95, 0.32, 0.25);
+        leg4.position.set(0.95, 0.32, 0.25);
+        bench.add(seat, leg1, leg2, leg3, leg4);
+        bench.position.set(x, 0, z);
+        bench.rotation.y = rotY;
+        scene.add(bench);
+      }
+
+      function addPlant(x, z, scale = 1) {
+        const pot = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.42 * scale, 0.55 * scale, 0.72 * scale, 18),
+          new THREE.MeshStandardMaterial({ color: 0x886957, roughness: 0.95 })
+        );
+        const leaves = new THREE.Mesh(
+          new THREE.SphereGeometry(0.85 * scale, 16, 16),
+          new THREE.MeshStandardMaterial({ color: 0x4f7149, roughness: 0.8 })
+        );
+        pot.position.set(x, 0.36 * scale, z);
+        leaves.position.set(x, 1.45 * scale, z);
+        scene.add(pot, leaves);
+      }
+
+      function addRunner(x, z, rotY, length, width, color) {
+        const runner = new THREE.Mesh(
+          new THREE.PlaneGeometry(length, width),
+          new THREE.MeshStandardMaterial({ color, roughness: 0.95 })
+        );
+        runner.rotation.x = -Math.PI / 2;
+        runner.rotation.z = rotY;
+        runner.position.set(x, 0.018, z);
+        scene.add(runner);
+      }
+
+      function applyShadow(object) {
+        object.traverse((child) => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+          }
+        });
+        return object;
+      }
+
+      function createBookObject(open = false) {
+        const group = new THREE.Group();
+        const coverMaterial = new THREE.MeshStandardMaterial({ color: 0x6b4f3d, roughness: 0.88 });
+        const pageMaterial = new THREE.MeshStandardMaterial({ color: 0xf5eee2, roughness: 0.95 });
+
+        if (open) {
+          const left = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.1, 0.56), pageMaterial);
+          left.rotation.z = 0.24;
+          left.position.set(-0.25, 0.04, 0);
+          const right = left.clone();
+          right.rotation.z = -0.24;
+          right.position.x = 0.25;
+          const spine = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.1, 0.58), coverMaterial);
+          group.add(left, right, spine);
+        } else {
+          const cover = new THREE.Mesh(new THREE.BoxGeometry(1, 0.16, 0.68), coverMaterial);
+          const pages = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.11, 0.58), pageMaterial);
+          pages.position.y = 0.03;
+          group.add(cover, pages);
+        }
+        return applyShadow(group);
+      }
+
+      function createPenObject() {
+        const group = new THREE.Group();
+        const body = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.03, 0.03, 0.9, 12),
+          new THREE.MeshStandardMaterial({ color: 0x9e7c45, roughness: 0.45, metalness: 0.2 })
+        );
+        body.rotation.z = Math.PI / 2.7;
+        body.position.set(0.15, 0.08, 0);
+        const tip = new THREE.Mesh(
+          new THREE.ConeGeometry(0.04, 0.13, 12),
+          new THREE.MeshStandardMaterial({ color: 0x483027, roughness: 0.5 })
+        );
+        tip.rotation.z = -Math.PI / 2.7;
+        tip.position.set(0.48, -0.01, 0);
+        group.add(body, tip);
+        return applyShadow(group);
+      }
+
+      function createBookAndPenObject() {
+        const group = new THREE.Group();
+        group.add(createBookObject(true));
+        const pen = createPenObject();
+        pen.position.set(0.1, 0.12, 0.1);
+        group.add(pen);
+        return applyShadow(group);
+      }
+
+      function createPrayerBeadsObject() {
+        const group = new THREE.Group();
+        const beadMaterial = new THREE.MeshStandardMaterial({ color: 0x8a5f36, roughness: 0.5, metalness: 0.18 });
+        const count = 14;
+        for (let i = 0; i < count; i += 1) {
+          const angle = (Math.PI * 2 * i) / count;
+          const bead = new THREE.Mesh(new THREE.SphereGeometry(0.085, 12, 12), beadMaterial);
+          bead.position.set(Math.cos(angle) * 0.42, 0.05, Math.sin(angle) * 0.3);
+          group.add(bead);
+        }
+        const tassel = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.02, 0.02, 0.35, 8),
+          new THREE.MeshStandardMaterial({ color: 0xc8a05d, roughness: 0.55 })
+        );
+        tassel.position.set(0, -0.14, 0.32);
+        group.add(tassel);
+        return applyShadow(group);
+      }
+
+      function createMicrophoneObject() {
+        const group = new THREE.Group();
+        const handle = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.055, 0.055, 0.7, 12),
+          new THREE.MeshStandardMaterial({ color: 0x3a3737, roughness: 0.55, metalness: 0.25 })
+        );
+        handle.rotation.z = Math.PI / 3;
+        const head = new THREE.Mesh(
+          new THREE.SphereGeometry(0.12, 14, 14),
+          new THREE.MeshStandardMaterial({ color: 0x74706f, roughness: 0.42, metalness: 0.35 })
+        );
+        head.position.set(0.31, 0.18, 0);
+        group.add(handle, head);
+        return applyShadow(group);
+      }
+
+      function createPlacardObject() {
+        const group = new THREE.Group();
+        const pole = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.03, 0.03, 0.8, 10),
+          new THREE.MeshStandardMaterial({ color: 0x7a573a, roughness: 0.8 })
+        );
+        pole.position.y = 0.3;
+        const sign = new THREE.Mesh(
+          new THREE.BoxGeometry(0.62, 0.34, 0.04),
+          new THREE.MeshStandardMaterial({ color: 0xf5eee2, roughness: 0.95 })
+        );
+        sign.position.y = 0.73;
+        group.add(pole, sign);
+        group.rotation.z = -0.28;
+        return applyShadow(group);
+      }
+
+      function createBarsObject() {
+        const group = new THREE.Group();
+        const barMaterial = new THREE.MeshStandardMaterial({ color: 0x6d6a67, roughness: 0.42, metalness: 0.45 });
+        [-0.18, -0.06, 0.06, 0.18].forEach((x) => {
+          const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.7, 10), barMaterial);
+          bar.position.set(x, 0.35, 0);
+          group.add(bar);
+        });
+        const memoir = createBookObject(false);
+        memoir.scale.set(0.72, 0.72, 0.72);
+        memoir.position.set(0, 0.02, 0.18);
+        group.add(memoir);
+        return applyShadow(group);
+      }
+
+      function createStackedBooksObject() {
+        const group = new THREE.Group();
+        const colors = [0x6b4f3d, 0x9e7c45, 0x4f6a6b];
+        colors.forEach((color, index) => {
+          const book = new THREE.Mesh(
+            new THREE.BoxGeometry(0.9 - index * 0.08, 0.1, 0.58),
+            new THREE.MeshStandardMaterial({ color, roughness: 0.84 })
+          );
+          book.position.y = 0.05 + index * 0.12;
+          book.rotation.y = index % 2 === 0 ? 0.08 : -0.08;
+          group.add(book);
+        });
+        return applyShadow(group);
+      }
+
+      function createTelephoneObject() {
+        const group = new THREE.Group();
+        const phoneMaterial = new THREE.MeshStandardMaterial({ color: 0x2f2a28, roughness: 0.62, metalness: 0.08 });
+        const accentMaterial = new THREE.MeshStandardMaterial({ color: 0xd8c7b1, roughness: 0.92 });
+
+        const base = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.14, 0.62), phoneMaterial);
+        base.position.y = 0.07;
+
+        const keypad = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.025, 0.2), accentMaterial);
+        keypad.position.set(0, 0.16, 0.05);
+
+        const leftEar = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.1, 0.18), phoneMaterial);
+        leftEar.position.set(-0.28, 0.22, -0.06);
+        const rightEar = leftEar.clone();
+        rightEar.position.x = 0.28;
+        const handle = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.08, 0.12), phoneMaterial);
+        handle.position.set(0, 0.24, -0.04);
+        handle.rotation.z = -0.2;
+
+        group.add(base, keypad, leftEar, rightEar, handle);
+        return applyShadow(group);
+      }
+
+      function createBookAndPencilObject() {
+        const group = new THREE.Group();
+        const book = createBookObject(false);
+        group.add(book);
+        const pencil = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.025, 0.025, 0.88, 10),
+          new THREE.MeshStandardMaterial({ color: 0xe0b14a, roughness: 0.78 })
+        );
+        pencil.rotation.z = Math.PI / 3.3;
+        pencil.position.set(0.06, 0.11, 0.08);
+        group.add(pencil);
+        return applyShadow(group);
+      }
+
+      function createHeadscarfObject() {
+        const group = new THREE.Group();
+        const fabric = new THREE.MeshStandardMaterial({ color: 0x4a3e18, roughness: 0.9, emissive: 0x1a1508, emissiveIntensity: 0.25 });
+        const gold = new THREE.MeshStandardMaterial({ color: 0xc8a44a, roughness: 0.36, metalness: 0.42 });
+
+        // Top fold — horizontal bridge (the peak where it drapes)
+        const topFold = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.07, 0.15), fabric);
+        topFold.position.y = 0.27;
+
+        // Left wing — angled downward from fold
+        const leftWing = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.48, 0.05), fabric);
+        leftWing.position.set(-0.3, 0.04, 0);
+        leftWing.rotation.z = 0.22;
+
+        // Right wing — mirror of left
+        const rightWing = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.48, 0.05), fabric);
+        rightWing.position.set(0.3, 0.04, 0);
+        rightWing.rotation.z = -0.22;
+
+        // Gold border strip along top fold
+        const border = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.022, 0.07), gold);
+        border.position.y = 0.315;
+
+        // Fringe strands at bottom of each wing
+        for (let i = -3; i <= 3; i++) {
+          const fringe = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.004, 0.11, 5), fabric);
+          fringe.position.set(i * 0.09, -0.2, 0);
+          group.add(fringe);
+        }
+
+        group.add(topFold, leftWing, rightWing, border);
+        return applyShadow(group);
+      }
+
+      function createRaisedFistObject() {
+        const group = new THREE.Group();
+        const skin = new THREE.MeshStandardMaterial({ color: 0x7a4a2e, roughness: 0.72 });
+        const red = new THREE.MeshStandardMaterial({ color: 0xb81c1c, roughness: 0.88 });
+
+        // Wrist/lower arm
+        const wrist = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.09, 0.32, 10), skin);
+        wrist.position.y = 0.16;
+
+        // Main fist body
+        const fist = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.22, 0.2), skin);
+        fist.position.y = 0.44;
+
+        // Thumb bump on side
+        const thumb = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 8), skin);
+        thumb.position.set(-0.16, 0.38, 0.06);
+        thumb.scale.set(1, 0.85, 0.8);
+
+        // Knuckle row across top
+        [-0.085, 0, 0.085].forEach(x => {
+          const knuckle = new THREE.Mesh(new THREE.SphereGeometry(0.042, 8, 8), skin);
+          knuckle.position.set(x, 0.56, 0.08);
+          group.add(knuckle);
+        });
+
+        // Red splash behind fist (protest feel)
+        const splash = new THREE.Mesh(new THREE.CircleGeometry(0.28, 8), red);
+        splash.position.set(0.05, 0.38, -0.08);
+        splash.rotation.y = -0.3;
+
+        group.add(wrist, fist, thumb, splash);
+        return applyShadow(group);
+      }
+
+      function createArtifactForExhibit(item) {
+        switch (item.id) {
+          case "aisha":
+            return createBookAndPenObject();
+          case "zainab":
+            return createBarsObject();
+          case "munira":
+            return createPrayerBeadsObject();
+          case "sharifa":
+            return createTelephoneObject();
+          case "sinead":
+            return createMicrophoneObject();
+          case "tawakkol":
+            return createRaisedFistObject();
+          case "malala":
+            return createBookAndPencilObject();
+          default:
+            return createBookObject(false);
+        }
+      }
+
+      function createPortraitFrame(item) {
+        const group = new THREE.Group();
+        const frame = new THREE.Mesh(
+          new THREE.BoxGeometry(1.72, 2.28, 0.12),
+          new THREE.MeshStandardMaterial({ color: 0x6b4f3d, roughness: 0.82 })
+        );
+        const matte = new THREE.Mesh(
+          new THREE.PlaneGeometry(1.5, 2.04),
+          new THREE.MeshStandardMaterial({ color: 0xf7f0e6 })
+        );
+        matte.position.z = 0.07;
+        group.add(frame, matte);
+
+        const shortName = item.name.split(" /")[0].split(" (")[0];
+        const fallbackCanvas = document.createElement("canvas");
+        fallbackCanvas.width = 520;
+        fallbackCanvas.height = 720;
+        const ctx = fallbackCanvas.getContext("2d");
+
+        ctx.fillStyle = "#f7f0e6";
+        ctx.fillRect(0, 0, fallbackCanvas.width, fallbackCanvas.height);
+        ctx.fillStyle = "#9e7c45";
+        ctx.fillRect(34, 34, fallbackCanvas.width - 68, 8);
+
+        const maxWidth = fallbackCanvas.width - 84;
+        const words = shortName.split(" ");
+        const lines = [];
+        let line = "";
+
+        ctx.fillStyle = "#1d1a17";
+        ctx.font = '700 40px "Cormorant Garamond"';
+
+        words.forEach((word) => {
+          const testLine = line ? `${line} ${word}` : word;
+          if (ctx.measureText(testLine).width > maxWidth && line) {
+            lines.push(line);
+            line = word;
+          } else {
+            line = testLine;
+          }
+        });
+        if (line) lines.push(line);
+
+        lines.slice(0, 2).forEach((text, index) => {
+          ctx.fillText(text, 42, 170 + index * 54);
+        });
+
+        ctx.fillStyle = "#6d635a";
+        ctx.font = '600 24px Inter';
+        ctx.fillText(item.region, 42, 300);
+
+        const fallbackTexture = new THREE.CanvasTexture(fallbackCanvas);
+        fallbackTexture.needsUpdate = true;
+
+        const fallbackPanel = new THREE.Mesh(
+          new THREE.PlaneGeometry(1.38, 1.9),
+          new THREE.MeshStandardMaterial({ map: fallbackTexture })
+        );
+        fallbackPanel.position.z = 0.08;
+        group.add(fallbackPanel);
+
+        const portraitMaterial = new THREE.MeshBasicMaterial({
+          side: THREE.DoubleSide,
+          transparent: true
+        });
+        const portrait = new THREE.Mesh(
+          new THREE.PlaneGeometry(1.38, 1.9),
+          portraitMaterial
+        );
+        portrait.position.z = 0.11;
+        portrait.visible = false;
+        group.add(portrait);
+
+        const applyTexture = (texture) => {
+          texture.colorSpace = THREE.SRGBColorSpace;
+          portraitMaterial.map = texture;
+          portraitMaterial.needsUpdate = true;
+          portrait.visible = true;
+          fallbackPanel.visible = false;
+        };
+
+        if (item.portraitSrc) {
+          const cachedTexture = portraitTextureCache.get(item.portraitSrc);
+          if (cachedTexture) {
+            applyTexture(cachedTexture);
+          } else {
+            const img = new Image();
+            img.onload = () => {
+              const texture = new THREE.Texture(img);
+              texture.colorSpace = THREE.SRGBColorSpace;
+              texture.needsUpdate = true;
+              portraitTextureCache.set(item.portraitSrc, texture);
+              applyTexture(texture);
+            };
+            img.onerror = () => {
+              console.warn(`Could not load portrait for ${item.name}: ${item.portraitSrc}`);
+            };
+            img.src = item.portraitSrc;
+          }
+        }
+
+        return applyShadow(group);
+      }
+
+      function addCentralFountain() {
+        const stone = new THREE.MeshStandardMaterial({ color: 0xd8c7b1, roughness: 0.95 });
+        const accent = new THREE.MeshStandardMaterial({ color: 0xc5aa83, roughness: 0.88 });
+        const water = new THREE.MeshStandardMaterial({ color: 0x8aa9b7, roughness: 0.2, metalness: 0.08, transparent: true, opacity: 0.92 });
+
+        const basin = new THREE.Mesh(new THREE.CylinderGeometry(3.3, 3.8, 0.75, 40), stone);
+        basin.position.y = 0.38;
+        const innerWater = new THREE.Mesh(new THREE.CylinderGeometry(2.75, 2.95, 0.12, 36), water);
+        innerWater.position.y = 0.75;
+        const pedestal = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 1.15, 1.25, 28), stone);
+        pedestal.position.y = 1.22;
+        const upperBowl = new THREE.Mesh(new THREE.CylinderGeometry(1.55, 1.95, 0.42, 30), accent);
+        upperBowl.position.y = 2.05;
+        const upperWater = new THREE.Mesh(new THREE.CylinderGeometry(1.18, 1.32, 0.08, 24), water);
+        upperWater.position.y = 2.28;
+        const finial = new THREE.Mesh(new THREE.SphereGeometry(0.22, 18, 18), accent);
+        finial.position.y = 2.62;
+
+        const jetMaterial = new THREE.MeshStandardMaterial({ color: 0xd9edf2, transparent: true, opacity: 0.55, roughness: 0.12 });
+        const jet = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.62, 8), jetMaterial);
+        jet.position.y = 2.6;
+
+        scene.add(basin, innerWater, pedestal, upperBowl, upperWater, finial, jet);
+      }
+
+      function addPedestal(item) {
+        const pedestalMaterial = new THREE.MeshStandardMaterial({
+          color: 0xe8dccd,
+          roughness: 0.92,
+          metalness: 0.05
+        });
+        const highlightMaterial = new THREE.MeshStandardMaterial({
+          color: 0x9e7c45,
+          emissive: 0x6e542c,
+          emissiveIntensity: 0.18,
+          roughness: 0.55
+        });
+
+        const group = new THREE.Group();
+        group.position.set(item.x, 0, item.z);
+
+        const base = new THREE.Mesh(new THREE.CylinderGeometry(1.02, 1.16, 1.02, 28), pedestalMaterial);
+        base.position.y = 0.51;
+
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(1.02, 0.055, 12, 48), highlightMaterial);
+        ring.position.y = 1.04;
+        ring.rotation.x = Math.PI / 2;
+
+        const artTop = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.72, 0.76, 0.18, 24),
+          new THREE.MeshStandardMaterial({ color: 0xf7f0e6, roughness: 0.75 })
+        );
+        artTop.position.y = 1.16;
+
+        const artifact = createArtifactForExhibit(item);
+        artifact.position.y = 1.34;
+        artifact.scale.set(0.92, 0.92, 0.92);
+
+        const facingAngle = Math.atan2(-item.x, -item.z);
+        const forwardX = Math.sin(facingAngle);
+        const forwardZ = Math.cos(facingAngle);
+
+        const portraitFrame = createPortraitFrame(item);
+        portraitFrame.position.set(0, 3.1, 0);
+        portraitFrame.rotation.y = facingAngle;
+        portraitFrame.scale.set(1.1, 1.1, 1.1);
+
+        const hitbox = new THREE.Mesh(
+          new THREE.CylinderGeometry(1.42, 1.42, 5.2, 12),
+          new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 })
+        );
+        hitbox.position.y = 2.25;
+        hitbox.userData.exhibitId = item.id;
+
+        const spotlight = new THREE.PointLight(0xf3d39f, 0.84, 9, 2);
+        spotlight.position.set(0, 4.05, 0);
+
+        group.add(base, ring, artTop, artifact, portraitFrame, hitbox, spotlight);
+        scene.add(group);
+
+        exhibitMeshes.set(item.id, { ring, spotlight });
+        interactiveObjects.push(hitbox);
+      }
+
+      function renderTimeline() {
+        const sorted = [...exhibits].sort((a, b) => a.sortYear - b.sortYear);
+        timelineTrack.innerHTML = sorted
+          .map(
+            (item) => `
+              <article class="timeline-card">
+                <div class="timeline-year">${item.period}</div>
+                <img class="timeline-thumb" src="${item.portraitSrc}" alt="${item.name}">
+                <h3>${item.name}</h3>
+                <div class="timeline-meta">${item.region} • ${item.role}</div>
+                <p>${item.short}</p>
+                <button data-id="${item.id}">Open exhibit</button>
+              </article>
+            `
+          )
+          .join("");
+
+        timelineTrack.querySelectorAll("button").forEach((button) => {
+          button.addEventListener("click", () => openModal(button.dataset.id));
+        });
+      }
+
+      function buildMuseumScene() {
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1b1714);
+        scene.fog = new THREE.Fog(0x1b1714, 14, 42);
+
+        camera = new THREE.PerspectiveCamera(72, 1, 0.1, 120);
+        renderer = new THREE.WebGLRenderer({ canvas: museumCanvas, antialias: true, alpha: false });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        textureLoader = new THREE.TextureLoader();
+        raycaster = new THREE.Raycaster();
+        clock = new THREE.Clock();
+
+        const ambient = new THREE.AmbientLight(0xf6e4c4, 0.78);
+        scene.add(ambient);
+
+        const fill = new THREE.DirectionalLight(0xf8e1c0, 0.96);
+        fill.position.set(5, 11, 4);
+        fill.castShadow = true;
+        fill.shadow.mapSize.width = 1024;
+        fill.shadow.mapSize.height = 1024;
+        scene.add(fill);
+
+        const floor = new THREE.Mesh(
+          new THREE.PlaneGeometry(46, 34),
+          new THREE.MeshStandardMaterial({ color: 0xddcfbb, roughness: 0.96 })
+        );
+        floor.rotation.x = -Math.PI / 2;
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        const border = new THREE.Mesh(
+          new THREE.RingGeometry(8.3, 10.8, 64),
+          new THREE.MeshStandardMaterial({ color: 0xc7b096, roughness: 0.92 })
+        );
+        border.rotation.x = -Math.PI / 2;
+        border.position.y = 0.015;
+        scene.add(border);
+
+        addRunner(0, 0, 0, 14, 8.6, 0x85573d);
+        addRunner(0, -7.4, 0, 14, 2.15, 0x9b6f4b);
+        addRunner(0, 7.4, 0, 14, 2.15, 0x9b6f4b);
+        addRunner(-11.3, 0, Math.PI / 2, 14, 2.1, 0x9b6f4b);
+        addRunner(11.3, 0, Math.PI / 2, 14, 2.1, 0x9b6f4b);
+
+        const wallMaterial = new THREE.MeshStandardMaterial({ color: 0xefe2d1, roughness: 0.92 });
+        const trimMaterial = new THREE.MeshStandardMaterial({ color: 0x5b4538, roughness: 0.88 });
+
+        const backWall = new THREE.Mesh(new THREE.BoxGeometry(46, 8.3, 1), wallMaterial);
+        backWall.position.set(0, 4.15, -16.5);
+        const frontWall = backWall.clone();
+        frontWall.position.set(0, 4.15, 16.5);
+        const leftWall = new THREE.Mesh(new THREE.BoxGeometry(1, 8.3, 34), wallMaterial);
+        leftWall.position.set(-23.5, 4.15, 0);
+        const rightWall = leftWall.clone();
+        rightWall.position.set(23.5, 4.15, 0);
+        scene.add(backWall, frontWall, leftWall, rightWall);
+
+        const ceiling = new THREE.Mesh(
+          new THREE.PlaneGeometry(46, 34),
+          new THREE.MeshStandardMaterial({ color: 0xf3e9db, roughness: 0.9 })
+        );
+        ceiling.rotation.x = Math.PI / 2;
+        ceiling.position.y = 8.3;
+        scene.add(ceiling);
+
+        const crown1 = new THREE.Mesh(new THREE.BoxGeometry(46, 0.35, 0.65), trimMaterial);
+        crown1.position.set(0, 7.98, -15.85);
+        const crown2 = crown1.clone();
+        crown2.position.set(0, 7.98, 15.85);
+        const crown3 = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.35, 34), trimMaterial);
+        crown3.position.set(-22.85, 7.98, 0);
+        const crown4 = crown3.clone();
+        crown4.position.set(22.85, 7.98, 0);
+        scene.add(crown1, crown2, crown3, crown4);
+
+        [-18, -10, 10, 18].forEach((x) => {
+          addColumn(x, -15.2);
+          addColumn(x, 15.2);
+        });
+        [-12, 12].forEach((z) => {
+          addColumn(-22.8, z);
+          addColumn(22.8, z);
+        });
+
+        const zonePlaques = [
+          { text: "Knowledge and Authority", x: 0, y: 6.45, z: -15.95, rotY: 0 },
+          { text: "Education and Care", x: -22.95, y: 6.45, z: 0, rotY: Math.PI / 2 },
+          { text: "Media and Public Identity", x: 22.95, y: 6.45, z: 0, rotY: -Math.PI / 2 },
+          { text: "Activism and Leadership", x: 0, y: 6.45, z: 15.95, rotY: Math.PI }
+        ];
+
+        zonePlaques.forEach(({ text, x, y, z, rotY }) => {
+          const plaque = createZonePlaque(text);
+          plaque.position.set(x, y, z);
+          plaque.rotation.y = rotY;
+          scene.add(plaque);
+        });
+
+        const ceilingLights = [
+          [-14, 7.2, -10],
+          [0, 7.2, -10],
+          [14, 7.2, -10],
+          [-14, 7.2, 0],
+          [0, 7.2, 0],
+          [14, 7.2, 0],
+          [-14, 7.2, 10],
+          [0, 7.2, 10],
+          [14, 7.2, 10]
+        ];
+
+        ceilingLights.forEach(([x, y, z]) => {
+          const fixture = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.72, 0.72, 0.16, 24),
+            new THREE.MeshStandardMaterial({ color: 0xf8f1e7, emissive: 0xf5d5a6, emissiveIntensity: 0.32 })
+          );
+          fixture.position.set(x, y, z);
+          scene.add(fixture);
+
+          const light = new THREE.PointLight(0xffddb3, 0.76, 14, 2);
+          light.position.set(x, y - 0.22, z);
+          scene.add(light);
+        });
+
+        createWallFrame("Knowledge and Authority", "Women as scholars, teachers, interpreters, and guides", 0, 3.55, -15.88, 0, 4.8, 2.0);
+        createWallFrame("Education and Rights", "Schooling, access, and girls’ public futures", -22.92, 3.45, -8.2, Math.PI / 2, 4.0, 2.0);
+        createWallFrame("Media and Public Identity", "Voice, visibility, conversion, and public image", 22.92, 3.45, -7.2, -Math.PI / 2, 4.25, 2.0);
+        createWallFrame("Community Reform and Care", "Support, advocacy, and family-centered reform", -22.92, 3.45, 7.8, Math.PI / 2, 4.25, 2.0);
+        createWallFrame("Activism and Political Leadership", "Journalism, protest, and public leadership", 0, 3.55, 15.88, Math.PI, 5.0, 2.0);
+        createWallFrame("Public Voice", "How Muslim women are seen, heard, and remembered", 22.92, 3.45, 7.8, -Math.PI / 2, 4.05, 2.0);
+
+        addBench(-8.5, 0, 0.2);
+        addBench(8.5, 0, -0.2);
+        addBench(-16.8, 0, Math.PI / 2);
+
+        addPlant(-18.7, 11.7, 1.0);
+        addPlant(18.7, 11.7, 1.0);
+        addPlant(-18.7, -11.7, 1.0);
+        addPlant(18.7, -11.7, 1.0);
+        addPlant(-10.8, -12.2, 0.82);
+        addPlant(10.8, -12.2, 0.82);
+
+        addCentralFountain();
+        exhibits.forEach(addPedestal);
+        resizeRenderer();
+      }
+
+      function resizeRenderer() {
+        if (!renderer || !camera) return;
+        const width = museumViewport.clientWidth;
+        const height = museumViewport.clientHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height, false);
+      }
+
+      function getZoneLabel() {
+        if (playerState.z < -5.2) return "Knowledge and Authority";
+        if (playerState.x < -10) return "Education and Care";
+        if (playerState.x > 10) return "Media and Public Identity";
+        if (playerState.z > 6.1) return "Activism and Leadership";
+        return "Central hall";
+      }
+
+      function updateCamera() {
+        const forwardX = Math.sin(playerState.yaw) * Math.cos(playerState.pitch);
+        const forwardY = Math.sin(playerState.pitch);
+        const forwardZ = Math.cos(playerState.yaw) * Math.cos(playerState.pitch);
+
+        camera.position.set(playerState.x, playerState.y, playerState.z);
+        camera.lookAt(
+          playerState.x + forwardX,
+          playerState.y + forwardY,
+          playerState.z + forwardZ
+        );
+      }
+
+      function collidesWithPedestal(x, z) {
+        return exhibits.some((item) => Math.hypot(x - item.x, z - item.z) < 2.05);
+      }
+
+      function collidesWithDecor(x, z) {
+        return decorObstacles.some((item) => Math.hypot(x - item.x, z - item.z) < item.r);
+      }
+
+      function movePlayer(delta) {
+        if (!sceneStarted || modal.open) return;
+
+        const forward = (keys.w || keys.arrowup ? 1 : 0) - (keys.s || keys.arrowdown ? 1 : 0);
+        const strafe = (keys.d || keys.arrowright ? 1 : 0) - (keys.a || keys.arrowleft ? 1 : 0);
+
+        if (!forward && !strafe) return;
+
+        const moveLength = Math.hypot(forward, strafe) || 1;
+        const normForward = forward / moveLength;
+        const normStrafe = strafe / moveLength;
+
+        const forwardX = Math.sin(playerState.yaw);
+        const forwardZ = Math.cos(playerState.yaw);
+        const rightX = Math.sin(playerState.yaw + Math.PI / 2);
+        const rightZ = Math.cos(playerState.yaw + Math.PI / 2);
+
+        const velocity = playerState.speed * delta;
+        const nextX = clamp(
+          playerState.x + (forwardX * normForward + rightX * normStrafe) * velocity,
+          roomBounds.minX,
+          roomBounds.maxX
+        );
+        const nextZ = clamp(
+          playerState.z + (forwardZ * normForward + rightZ * normStrafe) * velocity,
+          roomBounds.minZ,
+          roomBounds.maxZ
+        );
+
+        if (!collidesWithPedestal(nextX, playerState.z) && !collidesWithDecor(nextX, playerState.z)) {
+          playerState.x = nextX;
+        }
+        if (!collidesWithPedestal(playerState.x, nextZ) && !collidesWithDecor(playerState.x, nextZ)) {
+          playerState.z = nextZ;
+        }
+      }
+
+      function updateNearestExhibit() {
+        let closest = null;
+        let minDistance = Infinity;
+
+        exhibits.forEach((item) => {
+          const distance = Math.hypot(item.x - playerState.x, item.z - playerState.z);
+          if (distance < minDistance) {
+            minDistance = distance;
+            closest = { item, distance };
+          }
+
+          const meshSet = exhibitMeshes.get(item.id);
+          if (meshSet) {
+            const near = distance < 5.4;
+            meshSet.ring.material.emissiveIntensity = near ? 0.82 : 0.18;
+            meshSet.spotlight.intensity = near ? 1.34 : 0.84;
+          }
+        });
+
+        nearestExhibit = closest;
+        const currentZone = getZoneLabel();
+
+        if (closest && closest.distance < 5.4) {
+          museumHint.textContent = `Press E to open ${closest.item.name}`;
+          activeExhibitName.textContent = closest.item.name;
+          activeExhibitText.textContent = closest.item.short;
+          zoneText.textContent = closest.item.zone;
+          activeThemes.innerHTML = closest.item.themes.map((theme) => `<span class="chip">${theme}</span>`).join("");
+        } else {
+          museumHint.textContent = dragging ? "Release your mouse, then move closer to an exhibit" : "Walk through the gallery and approach a pedestal";
+          activeExhibitName.textContent = currentZone;
+          activeExhibitText.textContent = "Move toward a pedestal to bring an exhibit into focus.";
+          zoneText.textContent = currentZone;
+          activeThemes.innerHTML = `
+            <span class="chip">Education</span>
+            <span class="chip">Scholarship</span>
+            <span class="chip">Activism</span>
+          `;
+        }
+      }
+
+      function renderMiniMap() {
+        const w = miniMap.width;
+        const h = miniMap.height;
+        miniMapCtx.clearRect(0, 0, w, h);
+
+        miniMapCtx.fillStyle = "#f3eadb";
+        miniMapCtx.fillRect(0, 0, w, h);
+
+        const pad = 10;
+        const roomW = w - pad * 2;
+        const roomH = h - pad * 2;
+
+        miniMapCtx.fillStyle = "#e7d8c4";
+        miniMapCtx.fillRect(pad, pad, roomW, roomH);
+        miniMapCtx.strokeStyle = "#6b4f3d";
+        miniMapCtx.lineWidth = 3;
+        miniMapCtx.strokeRect(pad, pad, roomW, roomH);
+
+        const cx = pad + roomW / 2;
+        const cy = pad + roomH / 2;
+        miniMapCtx.beginPath();
+        miniMapCtx.fillStyle = "rgba(155, 111, 75, 0.32)";
+        miniMapCtx.arc(cx, cy, 22, 0, Math.PI * 2);
+        miniMapCtx.fill();
+
+        exhibits.forEach((item) => {
+          const x = pad + ((item.x - roomBounds.minX) / roomBounds.width) * roomW;
+          const y = pad + ((item.z - roomBounds.minZ) / roomBounds.depth) * roomH;
+          miniMapCtx.fillStyle = nearestExhibit && nearestExhibit.item.id === item.id && nearestExhibit.distance < 5.4 ? "#9e7c45" : "#76655b";
+          miniMapCtx.beginPath();
+          miniMapCtx.arc(x, y, 4, 0, Math.PI * 2);
+          miniMapCtx.fill();
+        });
+
+        const px = pad + ((playerState.x - roomBounds.minX) / roomBounds.width) * roomW;
+        const py = pad + ((playerState.z - roomBounds.minZ) / roomBounds.depth) * roomH;
+        miniMapCtx.beginPath();
+        miniMapCtx.fillStyle = "#1d1a17";
+        miniMapCtx.arc(px, py, 4.8, 0, Math.PI * 2);
+        miniMapCtx.fill();
+
+        miniMapCtx.beginPath();
+        miniMapCtx.strokeStyle = "#1d1a17";
+        miniMapCtx.lineWidth = 2;
+        miniMapCtx.moveTo(px, py);
+        miniMapCtx.lineTo(px + Math.sin(playerState.yaw) * 12, py + Math.cos(playerState.yaw) * 12);
+        miniMapCtx.stroke();
+      }
+
+      function tryOpenNearest() {
+        if (nearestExhibit && nearestExhibit.distance < 5.4) {
+          openModal(nearestExhibit.item.id);
+        }
+      }
+
+      function getIntersectedExhibit(clientX, clientY) {
+        const rect = museumCanvas.getBoundingClientRect();
+        const x = ((clientX - rect.left) / rect.width) * 2 - 1;
+        const y = -((clientY - rect.top) / rect.height) * 2 + 1;
+        raycaster.setFromCamera({ x, y }, camera);
+        const intersects = raycaster.intersectObjects(interactiveObjects, false);
+        if (!intersects.length) return null;
+        const id = intersects[0].object.userData.exhibitId;
+        return exhibits.find((item) => item.id === id) || null;
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+        const delta = clock.getDelta();
+        movePlayer(delta);
+        updateCamera();
+        updateNearestExhibit();
+        renderMiniMap();
+        renderer.render(scene, camera);
+      }
+
+      function startScene() {
+        sceneStarted = true;
+        sceneEntry.style.display = "none";
+        museumViewport.focus();
+        museumViewport.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      function bindSceneInteractions() {
+        museumViewport.addEventListener("mousedown", (event) => {
+          if (!sceneStarted) return;
+          dragging = true;
+          mouseMovedSinceDown = false;
+          dragState.lastX = event.clientX;
+          dragState.lastY = event.clientY;
+          museumHint.textContent = "Drag to look around the gallery";
+        });
+
+        window.addEventListener("mousemove", (event) => {
+          if (!dragging) return;
+          const dx = event.clientX - dragState.lastX;
+          const dy = event.clientY - dragState.lastY;
+          if (Math.abs(dx) + Math.abs(dy) > 1) mouseMovedSinceDown = true;
+          dragState.lastX = event.clientX;
+          dragState.lastY = event.clientY;
+          playerState.yaw -= dx * 0.0045;
+          playerState.pitch = clamp(playerState.pitch - dy * 0.0035, -0.55, 0.35);
+        });
+
+        window.addEventListener("mouseup", (event) => {
+          if (!dragging) return;
+          dragging = false;
+          if (!mouseMovedSinceDown) {
+            const hit = getIntersectedExhibit(event.clientX, event.clientY);
+            if (hit) openModal(hit.id);
+          }
+        });
+
+        museumViewport.addEventListener("click", (event) => {
+          if (!sceneStarted || mouseMovedSinceDown) return;
+          const hit = getIntersectedExhibit(event.clientX, event.clientY);
+          if (hit) openModal(hit.id);
+        });
+      }
+
+      window.addEventListener("keydown", (event) => {
+        const key = event.key.toLowerCase();
+        keys[key] = true;
+        if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(key)) {
+          event.preventDefault();
+        }
+        if (key === "e") {
+          tryOpenNearest();
+        }
+      });
+
+      window.addEventListener("keyup", (event) => {
+        keys[event.key.toLowerCase()] = false;
+      });
+
+      closeModal.addEventListener("click", () => modal.close());
+      modal.addEventListener("click", (event) => {
+        const rect = modal.getBoundingClientRect();
+        const clickedInDialog =
+          rect.top <= event.clientY &&
+          event.clientY <= rect.top + rect.height &&
+          rect.left <= event.clientX &&
+          event.clientX <= rect.left + rect.width;
+        if (!clickedInDialog) modal.close();
+      });
+
+      enterScene.addEventListener("click", startScene);
+      window.addEventListener("resize", resizeRenderer);
+
+      renderTimeline();
+      buildMuseumScene();
+      bindSceneInteractions();
+      updateCamera();
+      updateNearestExhibit();
+      renderMiniMap();
+      animate();
+    </script>
+  </body>
+</html>
